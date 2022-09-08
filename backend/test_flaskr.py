@@ -30,6 +30,9 @@ class TriviaTestCase(unittest.TestCase):
         self.search = {
             'searchTerm':'soccer'
         }
+        self.searchTerm = {
+            'searchTerm':'Marshmallows'
+        }
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -42,7 +45,7 @@ class TriviaTestCase(unittest.TestCase):
         pass
 
     """
-    TODO
+    DONE
     Write at least one test for each test for successful operation and for expected errors.
     """
     
@@ -53,6 +56,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
+    
+    def test_405_if_categories_method_is_wrong(self):
+        res = self.client().post('/categories')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'], 'Method not allowed')
+        
 
     def test_get_questions(self):
         res = self.client().get('/questions')
@@ -64,6 +76,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
         self.assertTrue(data['totalQuestions'])
         self.assertTrue(data['currentCategory'])
+        
+    def test_405_if_get_questions_method_is_wrong(self):
+        res = self.client().patch('/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'], 'Method not allowed')
 
     def test_delete_question(self):
         res = self.client().delete('/questions/5')
@@ -91,6 +111,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
     
+    def test_405_if_add_questions_method_is_wrong(self):
+        res = self.client().delete('/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'], 'Method not allowed')
+    
     
     def test_search_questions(self):
         res = self.client().post('/questions', json=self.search)
@@ -98,6 +126,16 @@ class TriviaTestCase(unittest.TestCase):
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+        
+    def test_400_if_searched_question_is_absent(self):
+        res = self.client().post('/questions')
+        data = json.loads(res.data)
+
+        responses = None
+        
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'], 'Bad request')
 
     
     def test_category_questions(self):
@@ -112,6 +150,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['currentCategory'], True)
         self.assertTrue(data['questions'], True)
         self.assertTrue(data['totalQuestions'], True)
+        
+        
+    def test_400_if_category_is_wrong(self):
+        res = self.client().get('/categories/20/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['message'], 'Bad request')
     
     
     def test_quizzes(self):
@@ -122,13 +169,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['question'])
         
-    def test_400_if_category_is_wrong(self):
-        res = self.client().get('/categories/20/questions')
+    def test_quizzes_wrong_method(self):
+        res = self.client().get('/quizzes')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 405)
         self.assertEqual(data['success'], False)
-        self.assertTrue(data['message'], 'Bad request')
+        self.assertTrue(data['message'], 'Method not allowed')
+        
+    
 
 
 # Make the tests conveniently executable
