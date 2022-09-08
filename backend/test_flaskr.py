@@ -30,9 +30,6 @@ class TriviaTestCase(unittest.TestCase):
         self.search = {
             'searchTerm':'soccer'
         }
-        self.searchTerm = {
-            'searchTerm':'Marshmallows'
-        }
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
